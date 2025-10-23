@@ -152,6 +152,14 @@ sub _flush {
 
 		$sth->execute($id, $json, $json);
 
+	} elsif ($driver eq 'mariadb') {
+		my $sth = $self->dbh->prepare(qq{
+			INSERT INTO $quoted_table (id, session_data)
+			VALUES (?, ?)
+			ON DUPLICATE KEY
+			UPDATE session_data = ?
+		});
+		$sth->execute($id, $json, $json);
 	} elsif ($driver eq 'sqlite') {
 
 		# All stable versions of DBD::SQLite use an SQLite version that support upserts
